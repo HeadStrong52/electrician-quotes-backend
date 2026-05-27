@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    margin: 15mm 15mm 20mm 15mm;
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #888;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+    color: #1a1a1a;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24pt;
+    padding-bottom: 12pt;
+    border-bottom: 3pt solid #f59e0b;
+  }
+
+  .business-name {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.5pt;
+  }
+
+  .business-details {
+    font-size: 9pt;
+    color: #555;
+    margin-top: 4pt;
+    line-height: 1.6;
+  }
+
+  .quote-badge {
+    text-align: right;
+  }
+
+  .quote-label {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 1.5pt;
+    color: #888;
+    font-weight: 600;
+  }
+
+  .quote-number {
+    font-size: 20pt;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-top: 2pt;
+  }
+
+  .quote-status {
+    display: inline-block;
+    margin-top: 6pt;
+    padding: 2pt 8pt;
+    border-radius: 3pt;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8pt;
+  }
+
+  .status-draft     { background: #e5e7eb; color: #374151; }
+  .status-sent      { background: #dbeafe; color: #1d4ed8; }
+  .status-approved  { background: #dcfce7; color: #15803d; }
+  .status-declined  { background: #fee2e2; color: #b91c1c; }
+  .status-invoiced  { background: #fef3c7; color: #92400e; }
+  .status-paid      { background: #d1fae5; color: #065f46; }
+
+  /* ── Meta grid ── */
+  .meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16pt;
+    margin-bottom: 22pt;
+  }
+
+  .meta-block label {
+    display: block;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 1pt;
+    color: #888;
+    font-weight: 600;
+    margin-bottom: 3pt;
+  }
+
+  .meta-block p {
+    font-size: 10pt;
+    color: #1a1a1a;
+  }
+
+  /* ── Title block ── */
+  .quote-title {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4pt;
+  }
+
+  .quote-description {
+    font-size: 10pt;
+    color: #555;
+    margin-bottom: 18pt;
+  }
+
+  /* ── Line items table ── */
+  .section-heading {
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 1.2pt;
+    font-weight: 700;
+    color: #f59e0b;
+    margin-bottom: 5pt;
+    margin-top: 14pt;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6pt;
+  }
+
+  thead th {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6pt 8pt;
+    text-align: left;
+    font-size: 9pt;
+    font-weight: 600;
+  }
+
+  thead th.right { text-align: right; }
+
+  tbody tr:nth-child(even) { background: #f9fafb; }
+
+  tbody td {
+    padding: 6pt 8pt;
+    font-size: 9.5pt;
+    border-bottom: 0.5pt solid #e5e7eb;
+    vertical-align: top;
+  }
+
+  tbody td.right { text-align: right; }
+  tbody td.muted  { color: #888; }
+
+  /* ── Totals ── */
+  .totals-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10pt;
+    margin-bottom: 22pt;
+  }
+
+  .totals {
+    width: 220pt;
+  }
+
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4pt 0;
+    font-size: 10pt;
+    border-bottom: 0.5pt solid #e5e7eb;
+  }
+
+  .totals-row.grand {
+    border-top: 2pt solid #1a1a1a;
+    border-bottom: none;
+    padding-top: 8pt;
+    font-size: 13pt;
+    font-weight: 700;
+  }
+
+  .totals-row .label { color: #555; }
+  .totals-row.grand .label { color: #1a1a1a; }
+
+  /* ── Notes ── */
+  .notes-box {
+    background: #f9fafb;
+    border-left: 3pt solid #f59e0b;
+    padding: 10pt 12pt;
+    margin-bottom: 20pt;
+    font-size: 9.5pt;
+    color: #374151;
+  }
+
+  /* ── CTA buttons ── */
+  .cta-section {
+    text-align: center;
+    margin-bottom: 20pt;
+    padding: 16pt;
+    background: #f9fafb;
+    border-radius: 4pt;
+  }
+
+  .cta-heading {
+    font-size: 11pt;
+    font-weight: 600;
+    margin-bottom: 10pt;
+    color: #1a1a1a;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16pt;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 8pt 24pt;
+    border-radius: 3pt;
+    font-size: 10pt;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: 0.3pt;
+  }
+
+  .btn-approve { background: #16a34a; color: #fff; }
+  .btn-decline { background: #fff; color: #dc2626; border: 1.5pt solid #dc2626; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: auto;
+    padding-top: 12pt;
+    border-top: 0.5pt solid #e5e7eb;
+    font-size: 8.5pt;
+    color: #888;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div>
+    <div class="business-name">{{ business.name }}</div>
+    <div class="business-details">
+      {% if business.abn %}ABN {{ business.abn }}<br>{% endif %}
+      {% if business.address %}{{ business.address }}<br>{% endif %}
+      {% if business.phone %}{{ business.phone }}{% endif %}
+      {% if business.phone and business.email %} &nbsp;|&nbsp; {% endif %}
+      {% if business.email %}{{ business.email }}{% endif %}
+    </div>
+  </div>
+  <div class="quote-badge">
+    <div class="quote-label">Quote</div>
+    <div class="quote-number">{{ quote.quote_number }}</div>
+    <div>
+      <span class="quote-status status-{{ quote.status }}">{{ quote.status | title }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── META ── -->
+<div class="meta">
+  <div class="meta-block">
+    <label>Prepared for</label>
+    <p><strong>{{ client.name }}</strong></p>
+    {% if client.address %}<p>{{ client.address }}</p>{% endif %}
+    {% if client.phone %}<p>{{ client.phone }}</p>{% endif %}
+    {% if client.email %}<p>{{ client.email }}</p>{% endif %}
+  </div>
+
+  {% if quote.site_address %}
+  <div class="meta-block">
+    <label>Site address</label>
+    <p>{{ quote.site_address }}</p>
+  </div>
+  {% endif %}
+
+  <div class="meta-block">
+    <label>Date issued</label>
+    <p>{{ quote.created_at | dateformat }}</p>
+    {% if quote.valid_until %}
+    <label style="margin-top:8pt;">Valid until</label>
+    <p>{{ quote.valid_until | dateformat }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ── TITLE ── -->
+<div class="quote-title">{{ quote.title }}</div>
+{% if quote.description %}
+<div class="quote-description">{{ quote.description }}</div>
+{% endif %}
+
+<!-- ── LINE ITEMS — LABOUR ── -->
+{% if labour_items %}
+<div class="section-heading">Labour</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:55%">Description</th>
+      <th class="right" style="width:12%">Qty</th>
+      <th style="width:10%">Unit</th>
+      <th class="right" style="width:11%">Rate</th>
+      <th class="right" style="width:12%">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in labour_items %}
+    <tr>
+      <td>{{ item.description }}</td>
+      <td class="right">{{ item.quantity | qty }}</td>
+      <td class="muted">{{ item.unit }}</td>
+      <td class="right">${{ item.unit_price | money }}</td>
+      <td class="right">${{ item.total | money }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- ── LINE ITEMS — MATERIALS ── -->
+{% if material_items %}
+<div class="section-heading">Materials</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:55%">Description</th>
+      <th class="right" style="width:12%">Qty</th>
+      <th style="width:10%">Unit</th>
+      <th class="right" style="width:11%">Unit price</th>
+      <th class="right" style="width:12%">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in material_items %}
+    <tr>
+      <td>{{ item.description }}</td>
+      <td class="right">{{ item.quantity | qty }}</td>
+      <td class="muted">{{ item.unit }}</td>
+      <td class="right">${{ item.unit_price | money }}</td>
+      <td class="right">${{ item.total | money }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- ── OTHER ITEMS ── -->
+{% if other_items %}
+<div class="section-heading">Other</div>
+<table>
+  <thead>
+    <tr>
+      <th style="width:55%">Description</th>
+      <th class="right" style="width:12%">Qty</th>
+      <th style="width:10%">Unit</th>
+      <th class="right" style="width:11%">Unit price</th>
+      <th class="right" style="width:12%">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in other_items %}
+    <tr>
+      <td>{{ item.description }}</td>
+      <td class="right">{{ item.quantity | qty }}</td>
+      <td class="muted">{{ item.unit }}</td>
+      <td class="right">${{ item.unit_price | money }}</td>
+      <td class="right">${{ item.total | money }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<!-- ── TOTALS ── -->
+<div class="totals-wrap">
+  <div class="totals">
+    <div class="totals-row">
+      <span class="label">Subtotal (ex GST)</span>
+      <span>${{ quote.subtotal | money }}</span>
+    </div>
+    <div class="totals-row">
+      <span class="label">GST ({{ (quote.gst_rate * 100) | int }}%)</span>
+      <span>${{ quote.gst | money }}</span>
+    </div>
+    <div class="totals-row grand">
+      <span class="label">Total</span>
+      <span>${{ quote.total | money }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── NOTES ── -->
+{% if quote.notes %}
+<div class="section-heading">Notes</div>
+<div class="notes-box">{{ quote.notes }}</div>
+{% endif %}
+
+<!-- ── CLIENT CTA (only on sent quotes) ── -->
+{% if quote.status == 'sent' and approve_url %}
+<div class="cta-section">
+  <div class="cta-heading">Ready to proceed? Accept or decline this quote below.</div>
+  <div class="cta-buttons">
+    <a href="{{ approve_url }}" class="btn btn-approve">Accept Quote</a>
+    <a href="{{ decline_url }}" class="btn btn-decline">Decline</a>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  This quote is valid for 30 days from the date of issue unless otherwise stated.
+  All prices are in Australian Dollars and {% if quote.gst_rate > 0 %}include GST where shown{% else %}exclusive of GST{% endif %}.
+</div>
+
+</body>
+</html>
