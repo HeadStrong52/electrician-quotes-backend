@@ -9,6 +9,26 @@ from app.auth import hash_password, verify_password, create_access_token, get_cu
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+@router.post("/auto-login", response_model=Token)
+def auto_login(db: Session = Depends(get_db)):
+    """Return a token for the first user — no credentials required.
+    Creates a default admin account if no users exist yet."""
+    user = db.query(User).filter(User.is_active == True).first()
+    if not user:
+        user = User(
+            email="admin@momentumelectrical.local",
+            name="Admin",
+            business_name="Momentum Electrical",
+            hashed_password=hash_password("auto-login-not-used"),
+            is_admin=True,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer"}
+
+
 @router.post("/register", response_model=UserOut, status_code=201)
 def register(body: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == body.email).first():

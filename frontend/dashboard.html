@@ -482,8 +482,18 @@
 </div>
 
 <script>
+// Auto-obtain a token if we don't have one yet
+async function ensureToken() {
+  if (localStorage.getItem('me_token')) return;
+  const res = await fetch('/auth/auto-login', { method: 'POST' });
+  if (res.ok) {
+    const { access_token } = await res.json();
+    localStorage.setItem('me_token', access_token);
+  }
+}
+await ensureToken();
+
 const token = localStorage.getItem('me_token');
-if (!token) window.location.href = '/';
 
 const API = {
   h: () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }),
@@ -491,7 +501,7 @@ const API = {
     const opts = { method, headers: this.h() };
     if (body) opts.body = JSON.stringify(body);
     const r = await fetch(path, opts);
-    if (r.status === 401) { localStorage.removeItem('me_token'); window.location.href = '/'; return; }
+    if (r.status === 401) { localStorage.removeItem('me_token'); window.location.replace('/'); return; }
     if (r.status === 204) return null;
     if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || r.statusText); }
     return r.json();
