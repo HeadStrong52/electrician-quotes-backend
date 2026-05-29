@@ -26,7 +26,7 @@ def create_access_token(data: dict) -> str:
     return jwt.encode({**data, "exp": expires}, settings.secret_key, algorithm=settings.algorithm)
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+def decode_user_from_token(token: str, db: Session) -> User:
     credentials_exc = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -38,12 +38,13 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         if sub is None:
             raise credentials_exc
         user_id = int(sub)
-        if user_id is None:
-            raise credentials_exc
-    except JWTError:
+    except (JWTError, ValueError):
         raise credentials_exc
-
     user = db.get(User, user_id)
     if user is None or not user.is_active:
         raise credentials_exc
     return user
+
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+    return decode_user_from_token(token, db)

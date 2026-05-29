@@ -8,7 +8,7 @@ from app.models.line_item import LineItem
 from app.models.client import Client
 from app.models.user import User
 from app.schemas.quote import QuoteCreate, QuoteUpdate, QuoteOut, QuoteSummary
-from app.auth import get_current_user
+from app.auth import get_current_user, decode_user_from_token
 from app.pdf import generate_quote_pdf
 from app.email_sender import send_quote_email
 from app.config import settings
@@ -164,9 +164,13 @@ def update_quote(
 @router.get("/{quote_id}/pdf")
 def download_quote_pdf(
     quote_id: int,
+    token: str | None = None,
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
 ):
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    decode_user_from_token(token, db)  # validates token
+
     quote = (
         db.query(Quote)
         .options(joinedload(Quote.line_items), joinedload(Quote.client))
