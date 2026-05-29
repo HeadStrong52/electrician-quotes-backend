@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Momentum Electrical — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  [x-cloak] { display: none !important; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-900" x-data="dashboard()" x-cloak>
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="w-60 bg-slate-900 flex flex-col shrink-0 overflow-y-auto">
+    <!-- Logo -->
+    <div class="px-4 py-5 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div x-show="!user?.logo" class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #2563eb, #1d4ed8)">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <img x-show="user?.logo" x-cloak :src="user.logo" class="w-9 h-9 rounded-xl object-cover shrink-0">
+        <div class="min-w-0">
+          <div class="text-white font-semibold text-sm leading-tight truncate" x-text="user?.business_name || 'Loading…'"></div>
+          <div class="text-slate-400 text-xs truncate" x-text="user?.name || ''"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 px-3 py-4 space-y-1">
+      <button @click="section='quotes'"
+        :class="section==='quotes' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Quotes
+        <span x-show="stats.draft > 0" x-text="stats.draft" class="ml-auto bg-blue-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none"></span>
+      </button>
+
+      <button @click="section='clients'; loadClients()"
+        :class="section==='clients' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Clients
+        <span x-show="clients.length > 0" x-text="clients.length" class="ml-auto text-slate-500 text-xs font-medium"></span>
+      </button>
+
+      <button @click="section='settings'"
+        :class="section==='settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Settings
+        <!-- Red dot when setup is incomplete -->
+        <span x-show="setupIncomplete" class="ml-auto w-2 h-2 bg-red-500 rounded-full"></span>
+      </button>
+    </nav>
+
+    <!-- User foot -->
+    <div class="px-3 pb-4 border-t border-slate-800 pt-4">
+      <button @click="logout()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════ MAIN ═══════════════ -->
+  <main class="flex-1 overflow-y-auto">
+
+    <!-- ── Setup Banner (shown until phone + REC filled) ── -->
+    <div x-show="setupIncomplete && section !== 'settings'" x-cloak
+      class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-sm font-medium">Complete your account setup — add your phone number, address and REC licence so they appear on quotes.</span>
+      </div>
+      <button @click="section='settings'" class="ml-4 shrink-0 bg-white/20 hover:bg-white/30 text-white font-semibold text-sm px-4 py-1.5 rounded-lg transition">
+        Complete Setup →
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- QUOTES SECTION                                     -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div x-show="section==='quotes'">
+      <div class="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div>
+          <h1 class="text-xl font-bold text-slate-900">Quotes</h1>
+          <p class="text-sm text-slate-500 mt-0.5" x-text="`${quotes.length} total`"></p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button @click="showNewClientModal=true"
+            class="flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            New Client
+          </button>
+          <button @click="openNewQuoteModal()"
+            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            New Quote
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 px-8 py-6">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm col-span-2 lg:col-span-1">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Total</div>
+          <div class="text-3xl font-bold text-slate-900" x-text="quotes.length"></div>
+          <div class="text-xs text-slate-400 mt-1">All quotes</div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Draft</div>
+          <div class="text-3xl font-bold text-slate-700" x-text="stats.draft"></div>
+          <div class="w-2 h-2 rounded-full bg-slate-400 mt-2"></div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Sent</div>
+          <div class="text-3xl font-bold text-blue-600" x-text="stats.sent"></div>
+          <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Approved</div>
+          <div class="text-3xl font-bold text-emerald-600" x-text="stats.approved"></div>
+          <div class="w-2 h-2 rounded-full bg-emerald-500 mt-2"></div>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-blue-100 shadow-sm" style="background: linear-gradient(135deg, #eff6ff, #fff)">
+          <div class="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">Revenue</div>
+          <div class="text-2xl font-bold text-blue-700" x-text="'$' + stats.totalValue.toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0})"></div>
+          <div class="text-xs text-blue-400 mt-1">Approved + paid</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex items-center gap-3 px-8 pb-4">
+        <div class="relative flex-1 max-w-sm">
+          <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input x-model="quoteSearch" placeholder="Search client or job…"
+            class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        </div>
+        <select x-model="statusFilter" class="px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <option value="">All Status</option>
+          <option value="draft">Draft</option>
+          <option value="sent">Sent</option>
+          <option value="approved">Approved</option>
+          <option value="declined">Declined</option>
+          <option value="invoiced">Invoiced</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="px-8 pb-8">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div x-show="quotesLoading" class="flex items-center justify-center py-16">
+            <svg class="w-6 h-6 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          </div>
+          <div x-show="!quotesLoading && filteredQuotes.length === 0" class="text-center py-16">
+            <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p class="text-slate-500 font-medium">No quotes yet</p>
+            <p class="text-slate-400 text-sm mt-1" x-show="clients.length === 0">Add a client first, then create your first quote</p>
+          </div>
+          <table class="w-full" x-show="!quotesLoading && filteredQuotes.length > 0">
+            <thead>
+              <tr class="border-b border-slate-100 text-left">
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Quote #</th>
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Client</th>
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Job</th>
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Date</th>
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Amount</th>
+                <th class="px-5 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider w-8"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+              <template x-for="q in filteredQuotes" :key="q.id">
+                <tr class="hover:bg-slate-50 transition cursor-pointer" @click="openQuote(q.id)">
+                  <td class="px-5 py-4"><span class="font-mono text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg" x-text="q.quote_number"></span></td>
+                  <td class="px-5 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold" :style="`background: ${avatarColor(q.client_name)}`" x-text="q.client_name[0].toUpperCase()"></div>
+                      <span class="font-medium text-sm text-slate-900" x-text="q.client_name"></span>
+                    </div>
+                  </td>
+                  <td class="px-5 py-4 hidden md:table-cell"><span class="text-sm text-slate-600" x-text="q.title"></span></td>
+                  <td class="px-5 py-4 hidden lg:table-cell"><span class="text-sm text-slate-400" x-text="formatDate(q.created_at)"></span></td>
+                  <td class="px-5 py-4"><span :class="statusClass(q.status)" class="px-2.5 py-1 rounded-full text-xs font-semibold capitalize" x-text="q.status"></span></td>
+                  <td class="px-5 py-4 text-right"><span class="font-semibold text-sm text-slate-900" x-text="'$' + q.total.toLocaleString('en-AU', {minimumFractionDigits:2})"></span></td>
+                  <td class="px-5 py-4" @click.stop>
+                    <button @click="confirmDelete(q)" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- CLIENTS SECTION                                    -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div x-show="section==='clients'">
+      <div class="flex items-center justify-between px-8 py-6 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div>
+          <h1 class="text-xl font-bold text-slate-900">Clients</h1>
+          <p class="text-sm text-slate-500 mt-0.5" x-text="`${clients.length} total`"></p>
+        </div>
+        <button @click="showNewClientModal=true"
+          class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Add Client
+        </button>
+      </div>
+      <div class="px-8 py-6">
+        <div x-show="clients.length === 0" class="text-center py-16">
+          <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <p class="text-slate-500 font-medium">No clients yet</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <template x-for="c in clients" :key="c.id">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md hover:border-blue-200 transition">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shrink-0" :style="`background: ${avatarColor(c.name)}`" x-text="c.name[0].toUpperCase()"></div>
+                <div class="min-w-0">
+                  <div class="font-semibold text-slate-900 text-sm truncate" x-text="c.name"></div>
+                  <div class="text-slate-400 text-xs truncate" x-text="c.email"></div>
+                </div>
+              </div>
+              <div x-show="c.phone" class="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                <span x-text="c.phone"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- SETTINGS SECTION                                   -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <div x-show="section==='settings'">
+      <div class="px-8 py-6 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <h1 class="text-xl font-bold text-slate-900">Settings</h1>
+        <p class="text-sm text-slate-500 mt-0.5">Account & Company Details</p>
+      </div>
+
+      <div class="px-8 py-8 max-w-3xl space-y-8">
+
+        <!-- Setup complete banner -->
+        <div x-show="!setupIncomplete" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
+          <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="text-sm text-emerald-800 font-medium">Account setup complete. Your details will appear on quotes and invoices.</span>
+        </div>
+
+        <!-- Setup incomplete banner -->
+        <div x-show="setupIncomplete" x-cloak class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div>
+            <p class="text-sm font-semibold text-amber-800">Finish setting up your account</p>
+            <p class="text-sm text-amber-700 mt-0.5">Add your phone number, address and REC licence number to appear on your quotes.</p>
+          </div>
+        </div>
+
+        <!-- Personal Info Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+            <h2 class="font-semibold text-slate-900">Personal Information</h2>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Your Name</label>
+                <input x-model="settings.name" type="text"
+                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
+                <input :value="user?.email" type="email" disabled
+                  class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-slate-50 text-slate-400 cursor-not-allowed">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Company Details Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+            <h2 class="font-semibold text-slate-900">Company Details</h2>
+            <p class="text-xs text-slate-500 mt-0.5">These appear on your quotes, invoices and emails sent to clients</p>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Business Name</label>
+                <input x-model="settings.business_name" type="text" placeholder="Momentum Electrical"
+                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone Number</label>
+                <input x-model="settings.phone" type="tel" placeholder="0400 000 000"
+                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">Business Address</label>
+              <input x-model="settings.address" type="text" placeholder="12 Main Street, Suburb NSW 2000"
+                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1.5">
+                Electrical Contractor Licence (REC)
+                <span class="ml-1.5 text-xs font-normal text-slate-400">Required for all licensed work in NSW</span>
+              </label>
+              <input x-model="settings.rec_licence" type="text" placeholder="REC 12345"
+                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+          </div>
+        </div>
+
+        <!-- Logo Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-100 bg-slate-50">
+            <h2 class="font-semibold text-slate-900">Company Logo</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Appears on quotes, PDFs and in the sidebar. PNG or JPG, max 2 MB.</p>
+          </div>
+          <div class="p-6">
+            <div class="flex items-start gap-6">
+              <!-- Preview -->
+              <div class="shrink-0">
+                <div x-show="!settings.logo && !user?.logo"
+                  class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50">
+                  <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <img x-show="settings.logo || user?.logo" x-cloak
+                  :src="settings.logo || user?.logo"
+                  class="w-24 h-24 rounded-2xl object-contain border border-slate-200 bg-white p-1">
+              </div>
+              <!-- Upload controls -->
+              <div class="flex-1">
+                <label class="block w-full cursor-pointer">
+                  <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50 transition">
+                    <svg class="w-6 h-6 text-slate-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    <p class="text-sm font-medium text-slate-600">Click to upload logo</p>
+                    <p class="text-xs text-slate-400 mt-0.5">PNG, JPG up to 2 MB</p>
+                  </div>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="handleLogoUpload($event)">
+                </label>
+                <button x-show="settings.logo || user?.logo" x-cloak
+                  @click="settings.logo = ''"
+                  class="mt-2 text-xs text-red-500 hover:text-red-700">Remove logo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save button -->
+        <div class="flex items-center justify-between">
+          <p x-show="saveMessage" x-cloak class="text-sm" :class="saveError ? 'text-red-600' : 'text-emerald-600'" x-text="saveMessage"></p>
+          <div class="ml-auto">
+            <button @click="saveSettings()" :disabled="savingSettings"
+              class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition shadow-sm shadow-blue-200">
+              <svg x-show="savingSettings" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+              <svg x-show="!savingSettings" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              <span x-text="savingSettings ? 'Saving…' : 'Save Changes'"></span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- MODALS                                             -->
+<!-- ══════════════════════════════════════════════════ -->
+
+<!-- New Quote Modal -->
+<div x-show="showNewQuoteModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showNewQuoteModal=false"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+      <h2 class="text-lg font-semibold text-slate-900">New Quote</h2>
+      <button @click="showNewQuoteModal=false" class="text-slate-400 hover:text-slate-700"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form @submit.prevent="createQuote()" class="p-6 space-y-4">
+      <div x-show="modalError" x-cloak class="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl" x-text="modalError"></div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Client <span class="text-red-500">*</span></label>
+        <select x-model="newQuote.client_id" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <option value="">Select client…</option>
+          <template x-for="c in clients" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
+        </select>
+        <p x-show="clients.length === 0" class="text-xs text-amber-600 mt-1">Add a client first</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Job Title <span class="text-red-500">*</span></label>
+        <input x-model="newQuote.title" type="text" required placeholder="e.g. Kitchen Renovation — Power & Lighting"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Site Address</label>
+        <input x-model="newQuote.site_address" type="text" placeholder="12 Main St, Suburb NSW 2000"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
+        <textarea x-model="newQuote.notes" rows="2" placeholder="Any additional notes…"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" @click="showNewQuoteModal=false" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+        <button type="submit" :disabled="saving || !newQuote.client_id || !newQuote.title"
+          class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
+          <svg x-show="saving" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          <span x-text="saving ? 'Creating…' : 'Create Quote'"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- New Client Modal -->
+<div x-show="showNewClientModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showNewClientModal=false"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+      <h2 class="text-lg font-semibold text-slate-900">New Client</h2>
+      <button @click="showNewClientModal=false" class="text-slate-400 hover:text-slate-700"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <form @submit.prevent="createClient()" class="p-6 space-y-4">
+      <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Name <span class="text-red-500">*</span></label>
+        <input x-model="newClient.name" required placeholder="John Smith" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Email <span class="text-red-500">*</span></label>
+        <input x-model="newClient.email" type="email" required placeholder="john@example.com" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
+        <input x-model="newClient.phone" type="tel" placeholder="0400 000 000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Address</label>
+        <input x-model="newClient.address" placeholder="12 Main St, Suburb NSW 2000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" @click="showNewClientModal=false" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+        <button type="submit" :disabled="saving" class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"><span x-text="saving ? 'Adding…' : 'Add Client'"></span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirm -->
+<div x-show="deleteTarget" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="deleteTarget=null"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center"><svg class="w-5 h-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+      <div><h3 class="font-semibold text-slate-900">Delete quote?</h3><p class="text-sm text-slate-500" x-text="deleteTarget?.quote_number || ''"></p></div>
+    </div>
+    <p class="text-sm text-slate-600 mb-5">This action cannot be undone.</p>
+    <div class="flex gap-3">
+      <button @click="deleteTarget=null" class="flex-1 py-2.5 border border-slate-300 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+      <button @click="deleteQuote()" class="flex-1 py-2.5 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('me_token');
+if (!token) window.location.href = '/';
+
+const API = {
+  h: () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }),
+  async req(method, path, body) {
+    const opts = { method, headers: this.h() };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch(path, opts);
+    if (r.status === 401) { localStorage.removeItem('me_token'); window.location.href = '/'; return; }
+    if (r.status === 204) return null;
+    if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || r.statusText); }
+    return r.json();
+  },
+  get: (p) => API.req('GET', p),
+  post: (p, b) => API.req('POST', p, b),
+  patch: (p, b) => API.req('PATCH', p, b),
+  del: (p) => API.req('DELETE', p)
+};
+
+function dashboard() {
+  return {
+    section: 'quotes',
+    user: null,
+    quotes: [],
+    clients: [],
+    quotesLoading: true,
+    quoteSearch: '',
+    statusFilter: '',
+    stats: { draft: 0, sent: 0, approved: 0, totalValue: 0 },
+    showNewQuoteModal: false,
+    showNewClientModal: false,
+    newQuote: { client_id: '', title: '', site_address: '', notes: '' },
+    newClient: { name: '', email: '', phone: '', address: '' },
+    saving: false,
+    modalError: '',
+    deleteTarget: null,
+    // Settings
+    settings: { name: '', business_name: '', phone: '', address: '', rec_licence: '', logo: '' },
+    savingSettings: false,
+    saveMessage: '',
+    saveError: false,
+
+    get setupIncomplete() {
+      return this.user && (!this.user.phone || !this.user.rec_licence);
+    },
+
+    async init() {
+      // Check if coming from fresh registration
+      const setupPending = localStorage.getItem('me_setup_pending');
+      if (setupPending) {
+        localStorage.removeItem('me_setup_pending');
+        this.section = 'settings';
+      }
+
+      const [me, quotes, clients] = await Promise.all([
+        API.get('/auth/me'),
+        API.get('/quotes'),
+        API.get('/clients')
+      ]);
+      this.user = me;
+      this.quotes = quotes || [];
+      this.clients = clients || [];
+      this.quotesLoading = false;
+      this.computeStats();
+      this.syncSettingsFromUser();
+    },
+
+    syncSettingsFromUser() {
+      if (!this.user) return;
+      this.settings = {
+        name: this.user.name || '',
+        business_name: this.user.business_name || '',
+        phone: this.user.phone || '',
+        address: this.user.address || '',
+        rec_licence: this.user.rec_licence || '',
+        logo: ''  // logo shown from user.logo, only set when a new file is uploaded
+      };
+    },
+
+    async saveSettings() {
+      this.savingSettings = true; this.saveMessage = ''; this.saveError = false;
+      try {
+        const payload = {
+          name: this.settings.name || undefined,
+          business_name: this.settings.business_name || undefined,
+          phone: this.settings.phone || undefined,
+          address: this.settings.address || undefined,
+          rec_licence: this.settings.rec_licence || undefined,
+        };
+        // Only include logo if a new one was uploaded, or explicitly cleared
+        if (this.settings.logo !== '') {
+          payload.logo = this.settings.logo || null;
+        }
+        this.user = await API.patch('/auth/me', payload);
+        this.syncSettingsFromUser();
+        this.saveMessage = '✓ Changes saved';
+        setTimeout(() => this.saveMessage = '', 3000);
+      } catch (e) {
+        this.saveMessage = e.message;
+        this.saveError = true;
+      } finally { this.savingSettings = false; }
+    },
+
+    handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Logo must be under 2 MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => { this.settings.logo = e.target.result; };
+      reader.readAsDataURL(file);
+    },
+
+    computeStats() {
+      this.stats.draft = this.quotes.filter(q => q.status === 'draft').length;
+      this.stats.sent = this.quotes.filter(q => q.status === 'sent').length;
+      this.stats.approved = this.quotes.filter(q => q.status === 'approved').length;
+      this.stats.totalValue = this.quotes
+        .filter(q => ['approved','paid','invoiced'].includes(q.status))
+        .reduce((s, q) => s + q.total, 0);
+    },
+
+    async loadClients() {
+      if (this.clients.length === 0) this.clients = await API.get('/clients') || [];
+    },
+
+    get filteredQuotes() {
+      return this.quotes.filter(q => {
+        const ms = !this.quoteSearch ||
+          q.client_name.toLowerCase().includes(this.quoteSearch.toLowerCase()) ||
+          q.title.toLowerCase().includes(this.quoteSearch.toLowerCase()) ||
+          q.quote_number.toLowerCase().includes(this.quoteSearch.toLowerCase());
+        return ms && (!this.statusFilter || q.status === this.statusFilter);
+      });
+    },
+
+    openNewQuoteModal() {
+      this.newQuote = { client_id: this.clients[0]?.id || '', title: '', site_address: '', notes: '' };
+      this.modalError = ''; this.showNewQuoteModal = true;
+    },
+
+    async createQuote() {
+      this.saving = true; this.modalError = '';
+      try {
+        const q = await API.post('/quotes', {
+          client_id: parseInt(this.newQuote.client_id),
+          title: this.newQuote.title,
+          site_address: this.newQuote.site_address || undefined,
+          notes: this.newQuote.notes || undefined,
+          line_items: []
+        });
+        this.showNewQuoteModal = false;
+        window.location.href = `/quote?id=${q.id}`;
+      } catch (e) {
+        this.modalError = e.message;
+      } finally { this.saving = false; }
+    },
+
+    async createClient() {
+      this.saving = true;
+      try {
+        const c = await API.post('/clients', {
+          name: this.newClient.name, email: this.newClient.email,
+          phone: this.newClient.phone || null, address: this.newClient.address || null
+        });
+        this.clients.push(c);
+        this.clients.sort((a, b) => a.name.localeCompare(b.name));
+        this.newClient = { name: '', email: '', phone: '', address: '' };
+        this.showNewClientModal = false;
+      } catch (e) { alert(e.message); }
+      finally { this.saving = false; }
+    },
+
+    confirmDelete(q) {
+      if (q.status !== 'draft') { alert('Only draft quotes can be deleted'); return; }
+      this.deleteTarget = q;
+    },
+
+    async deleteQuote() {
+      if (!this.deleteTarget) return;
+      try {
+        await API.del(`/quotes/${this.deleteTarget.id}`);
+        this.quotes = this.quotes.filter(q => q.id !== this.deleteTarget.id);
+        this.computeStats(); this.deleteTarget = null;
+      } catch (e) { alert(e.message); }
+    },
+
+    openQuote(id) { window.location.href = `/quote?id=${id}`; },
+
+    statusClass(status) {
+      const m = { draft:'bg-slate-100 text-slate-600', sent:'bg-blue-100 text-blue-700', approved:'bg-emerald-100 text-emerald-700', declined:'bg-red-100 text-red-700', invoiced:'bg-purple-100 text-purple-700', paid:'bg-emerald-100 text-emerald-800' };
+      return m[status] || 'bg-slate-100 text-slate-600';
+    },
+
+    avatarColor(name) {
+      const c = ['#2563eb','#7c3aed','#dc2626','#ea580c','#16a34a','#0891b2','#db2777'];
+      return c[(name||'').charCodeAt(0) % c.length];
+    },
+
+    formatDate(iso) {
+      return new Date(iso).toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+    },
+
+    logout() { localStorage.removeItem('me_token'); window.location.href = '/'; }
+  }
+}
+</script>
+</body>
+</html>

@@ -52,3 +52,7 @@ class Quote(Base):
     line_items: Mapped[list["LineItem"]] = relationship(
         back_populates="quote", cascade="all, delete-orphan", order_by="LineItem.sort_order"
     )
+
+    @property
+    def client_name(self) -> str:
+        return self.client.name if self.client else ""

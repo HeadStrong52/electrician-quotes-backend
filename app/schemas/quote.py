@@ -84,6 +84,7 @@ class QuoteOut(BaseModel):
     notes: str | None
     status: QuoteStatus
     client_id: int
+    client_name: str
     created_by_id: int
     subtotal: float
     gst: float

@@ -111,7 +111,12 @@ def create_quote(
     _apply_line_items(quote, body.line_items, db)
     _recalculate(quote)
     db.commit()
-    db.refresh(quote)
+    quote = (
+        db.query(Quote)
+        .options(joinedload(Quote.line_items), joinedload(Quote.client))
+        .filter(Quote.id == quote.id)
+        .first()
+    )
     return quote
 
 
@@ -121,7 +126,12 @@ def get_quote(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    quote = db.query(Quote).options(joinedload(Quote.line_items)).get(quote_id)
+    quote = (
+        db.query(Quote)
+        .options(joinedload(Quote.line_items), joinedload(Quote.client))
+        .filter(Quote.id == quote_id)
+        .first()
+    )
     if not quote:
         raise HTTPException(404, "Quote not found")
     return quote
@@ -134,7 +144,7 @@ def update_quote(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    quote = db.query(Quote).options(joinedload(Quote.line_items)).get(quote_id)
+    quote = db.query(Quote).options(joinedload(Quote.line_items), joinedload(Quote.client)).filter(Quote.id == quote_id).first()
     if not quote:
         raise HTTPException(404, "Quote not found")
 
