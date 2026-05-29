@@ -7,7 +7,7 @@ from app.models.quote import Quote, QuoteStatus
 from app.models.line_item import LineItem
 from app.models.client import Client
 from app.models.user import User
-from app.schemas.quote import QuoteCreate, QuoteUpdate, QuoteOut, QuoteSummary
+from app.schemas.quote import QuoteCreate, QuoteUpdate, QuoteOut, QuoteSummary, LineItemCreate, LineItemOut
 from app.auth import get_current_user, decode_user_from_token
 from app.pdf import generate_quote_pdf
 from app.email_sender import send_quote_email
@@ -159,6 +159,55 @@ def update_quote(
     db.commit()
     db.refresh(quote)
     return quote
+
+
+@router.post("/{quote_id}/items", response_model=LineItemOut, status_code=201)
+def add_line_item(
+    quote_id: int,
+    body: LineItemCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    quote = db.query(Quote).options(joinedload(Quote.line_items)).filter(Quote.id == quote_id).first()
+    if not quote:
+        raise HTTPException(404, "Quote not found")
+    sort_order = body.sort_order if body.sort_order else len(quote.line_items)
+    total = round(float(body.quantity) * float(body.unit_price), 2)
+    item = LineItem(
+        quote_id=quote_id,
+        type=body.type,
+        description=body.description,
+        quantity=body.quantity,
+        unit=body.unit,
+        unit_price=body.unit_price,
+        total=total,
+        sort_order=sort_order,
+        material_id=body.material_id,
+    )
+    db.add(item)
+    quote.line_items.append(item)
+    _recalculate(quote)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@router.delete("/{quote_id}/items/{item_id}", status_code=204)
+def delete_line_item(
+    quote_id: int,
+    item_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    item = db.query(LineItem).filter(LineItem.id == item_id, LineItem.quote_id == quote_id).first()
+    if not item:
+        raise HTTPException(404, "Line item not found")
+    quote = db.query(Quote).options(joinedload(Quote.line_items)).filter(Quote.id == quote_id).first()
+    db.delete(item)
+    db.flush()
+    db.refresh(quote)
+    _recalculate(quote)
+    db.commit()
 
 
 @router.get("/{quote_id}/pdf")
