@@ -277,13 +277,18 @@ def send_quote(
     if quote.status not in (QuoteStatus.DRAFT, QuoteStatus.SENT):
         raise HTTPException(400, f"Cannot send a quote with status '{quote.status}'")
 
-    approve_url = f"{settings.public_url}/quotes/public/{quote.quote_number}/approve"
-    decline_url = f"{settings.public_url}/quotes/public/{quote.quote_number}/decline"
+    # Mark as Sent immediately — email delivery is best-effort
+    quote.status = QuoteStatus.SENT
+    quote.sent_at = datetime.utcnow()
+    db.commit()
+    db.refresh(quote)
 
-    pdf_bytes = generate_quote_pdf(quote, settings.public_url, user=current_user)
-
+    # Attempt email (non-blocking — any failure is silently ignored)
     if quote.client.email:
         try:
+            approve_url = f"{settings.public_url}/quotes/public/{quote.quote_number}/approve"
+            decline_url = f"{settings.public_url}/quotes/public/{quote.quote_number}/decline"
+            pdf_bytes = generate_quote_pdf(quote, settings.public_url, user=current_user)
             send_quote_email(
                 to_email=quote.client.email,
                 to_name=quote.client.name,
@@ -297,12 +302,8 @@ def send_quote(
                 sender_email=current_user.email or "",
             )
         except Exception:
-            pass  # SMTP not configured or failed — still mark as sent
+            pass
 
-    quote.status = QuoteStatus.SENT
-    quote.sent_at = datetime.utcnow()
-    db.commit()
-    db.refresh(quote)
     return quote
 
 

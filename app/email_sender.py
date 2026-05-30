@@ -80,11 +80,11 @@ def send_quote_email(
 
     port = settings.smtp_port
     if settings.smtp_use_ssl:
-        with smtplib.SMTP_SSL(settings.smtp_host, port) as smtp:
+        with smtplib.SMTP_SSL(settings.smtp_host, port, timeout=8) as smtp:
             smtp.login(settings.smtp_user, settings.smtp_password)
             smtp.send_message(msg)
     else:
-        with smtplib.SMTP(settings.smtp_host, port) as smtp:
+        with smtplib.SMTP(settings.smtp_host, port, timeout=8) as smtp:
             smtp.ehlo()
             smtp.starttls()
             smtp.login(settings.smtp_user, settings.smtp_password)
