@@ -482,21 +482,8 @@
 </div>
 
 <script>
-// Auto-obtain a token if we don't have one yet
-async function ensureToken() {
-  if (localStorage.getItem('me_token')) return;
-  const res = await fetch('/auth/auto-login', { method: 'POST' });
-  if (res.ok) {
-    const { access_token } = await res.json();
-    localStorage.setItem('me_token', access_token);
-  }
-}
-await ensureToken();
-
-const token = localStorage.getItem('me_token');
-
 const API = {
-  h: () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }),
+  h: () => ({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('me_token')}` }),
   async req(method, path, body) {
     const opts = { method, headers: this.h() };
     if (body) opts.body = JSON.stringify(body);
@@ -540,6 +527,12 @@ function dashboard() {
     },
 
     async init() {
+      // Ensure we have a token (auto-login if not)
+      if (!localStorage.getItem('me_token')) {
+        const r = await fetch('/auth/auto-login', { method: 'POST' });
+        if (r.ok) { const { access_token } = await r.json(); localStorage.setItem('me_token', access_token); }
+      }
+
       // Check if coming from fresh registration
       const setupPending = localStorage.getItem('me_setup_pending');
       if (setupPending) {
