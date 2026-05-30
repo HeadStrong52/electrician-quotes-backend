@@ -66,9 +66,11 @@ class QuoteSummary(BaseModel):
     status: QuoteStatus
     client_id: int
     client_name: str
+    site_address: str | None
     subtotal: float
     gst: float
     total: float
+    is_archived: bool
     created_at: datetime
     updated_at: datetime
 
@@ -86,6 +88,7 @@ class QuoteOut(BaseModel):
     client_id: int
     client_name: str
     created_by_id: int
+    is_archived: bool
     subtotal: float
     gst: float
     total: float

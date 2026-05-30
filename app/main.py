@@ -25,10 +25,19 @@ def _migrate_users_table():
         conn.commit()
 
 
+def _migrate_quotes_table():
+    with engine.connect() as conn:
+        existing = {c["name"] for c in sa_inspect(engine).get_columns("quotes")}
+        if "is_archived" not in existing:
+            conn.execute(text("ALTER TABLE quotes ADD COLUMN is_archived BOOLEAN NOT NULL DEFAULT FALSE"))
+        conn.commit()
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     Base.metadata.create_all(bind=engine)
     _migrate_users_table()
+    _migrate_quotes_table()
     yield
 
 

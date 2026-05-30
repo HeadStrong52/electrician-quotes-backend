@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import String, DateTime, Text, ForeignKey, Numeric, Enum
+from sqlalchemy import String, DateTime, Text, ForeignKey, Numeric, Enum, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -39,6 +39,7 @@ class Quote(Base):
     # GST rate as a decimal, e.g. 0.10 for 10%
     gst_rate: Mapped[float] = mapped_column(Numeric(5, 4), default=0.10)
 
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False)
     valid_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

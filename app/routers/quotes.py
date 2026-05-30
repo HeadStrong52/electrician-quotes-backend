@@ -55,12 +55,14 @@ def _apply_line_items(quote: Quote, items_data: list, db: Session):
 def list_quotes(
     status: QuoteStatus | None = None,
     client_id: int | None = None,
+    archived: bool = False,
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 100,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     query = db.query(Quote).options(joinedload(Quote.client))
+    query = query.filter(Quote.is_archived == archived)
     if status:
         query = query.filter(Quote.status == status)
     if client_id:
@@ -76,9 +78,11 @@ def list_quotes(
             status=q.status,
             client_id=q.client_id,
             client_name=q.client.name,
+            site_address=q.site_address,
             subtotal=float(q.subtotal),
             gst=float(q.gst),
             total=float(q.total),
+            is_archived=q.is_archived,
             created_at=q.created_at,
             updated_at=q.updated_at,
         ))
@@ -308,7 +312,7 @@ def send_quote(
 
 
 @router.delete("/{quote_id}", status_code=204)
-def delete_quote(
+def archive_quote(
     quote_id: int,
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
@@ -316,10 +320,49 @@ def delete_quote(
     quote = db.get(Quote, quote_id)
     if not quote:
         raise HTTPException(404, "Quote not found")
-    if quote.status not in (QuoteStatus.DRAFT,):
-        raise HTTPException(400, "Only draft quotes can be deleted")
-    db.delete(quote)
+    quote.is_archived = True
     db.commit()
+
+
+@router.post("/{quote_id}/restore", response_model=QuoteOut)
+def restore_quote(
+    quote_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    quote = (
+        db.query(Quote)
+        .options(joinedload(Quote.line_items), joinedload(Quote.client))
+        .filter(Quote.id == quote_id)
+        .first()
+    )
+    if not quote:
+        raise HTTPException(404, "Quote not found")
+    quote.is_archived = False
+    db.commit()
+    db.refresh(quote)
+    return quote
+
+
+@router.post("/{quote_id}/revert", response_model=QuoteOut)
+def revert_to_draft(
+    quote_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    quote = (
+        db.query(Quote)
+        .options(joinedload(Quote.line_items), joinedload(Quote.client))
+        .filter(Quote.id == quote_id)
+        .first()
+    )
+    if not quote:
+        raise HTTPException(404, "Quote not found")
+    quote.status = QuoteStatus.DRAFT
+    quote.sent_at = None
+    db.commit()
+    db.refresh(quote)
+    return quote
 
 
 # Public endpoint — clients approve/decline without logging in
