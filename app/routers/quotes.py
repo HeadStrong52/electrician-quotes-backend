@@ -291,6 +291,9 @@ def send_quote(
             pdf_bytes=pdf_bytes,
             approve_url=approve_url,
             decline_url=decline_url,
+            sender_name=current_user.business_name or "",
+            sender_phone=current_user.phone or "",
+            sender_email=current_user.email or "",
         )
 
     quote.status = QuoteStatus.SENT
