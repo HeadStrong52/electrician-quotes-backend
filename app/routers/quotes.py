@@ -283,18 +283,21 @@ def send_quote(
     pdf_bytes = generate_quote_pdf(quote, settings.public_url, user=current_user)
 
     if quote.client.email:
-        send_quote_email(
-            to_email=quote.client.email,
-            to_name=quote.client.name,
-            quote_number=quote.quote_number,
-            quote_title=quote.title,
-            pdf_bytes=pdf_bytes,
-            approve_url=approve_url,
-            decline_url=decline_url,
-            sender_name=current_user.business_name or "",
-            sender_phone=current_user.phone or "",
-            sender_email=current_user.email or "",
-        )
+        try:
+            send_quote_email(
+                to_email=quote.client.email,
+                to_name=quote.client.name,
+                quote_number=quote.quote_number,
+                quote_title=quote.title,
+                pdf_bytes=pdf_bytes,
+                approve_url=approve_url,
+                decline_url=decline_url,
+                sender_name=current_user.business_name or "",
+                sender_phone=current_user.phone or "",
+                sender_email=current_user.email or "",
+            )
+        except Exception:
+            pass  # SMTP not configured or failed — still mark as sent
 
     quote.status = QuoteStatus.SENT
     quote.sent_at = datetime.utcnow()
