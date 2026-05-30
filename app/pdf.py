@@ -67,30 +67,18 @@ def _logo_bytes(data_uri: str):
 
 
 def _deco_bar(pdf, x, y, w, flip=False):
-    """Subtle professional accent bar: 1.8mm stripe + 0.4mm underline, evenly spaced dashes."""
-    bar_h = 1.8
+    """Minimal orange accent: 0.8mm bar + 0.25mm underline."""
+    bar_h = 0.8
     _rgb(pdf, ORANGE, fill=True, draw=True)
     if flip:
-        # Bottom: thin line first, then bar
-        pdf.set_line_width(0.4)
+        pdf.set_line_width(0.25)
         pdf.line(x, y, x + w, y)
-        pdf.rect(x, y + 1.4, w, bar_h, style="F")
-        _rgb(pdf, ORANGE_DK, fill=True)
-        nx = x + 22
-        while nx < x + w - 10:
-            pdf.rect(nx, y + 1.4, 1.0, bar_h, style="F")
-            nx += 22
+        pdf.rect(x, y + 1.0, w, bar_h, style="F")
     else:
-        # Top: bar then thin line
         pdf.rect(x, y, w, bar_h, style="F")
-        _rgb(pdf, ORANGE_DK, fill=True)
-        nx = x + 22
-        while nx < x + w - 10:
-            pdf.rect(nx, y, 1.0, bar_h, style="F")
-            nx += 22
         _rgb(pdf, ORANGE, draw=True)
-        pdf.set_line_width(0.4)
-        pdf.line(x, y + bar_h + 1.2, x + w, y + bar_h + 1.2)
+        pdf.set_line_width(0.25)
+        pdf.line(x, y + bar_h + 1.0, x + w, y + bar_h + 1.0)
 
 
 class QuotePDF(FPDF):
@@ -140,7 +128,7 @@ def generate_quote_pdf(quote: Quote, base_url: str, user=None) -> bytes:
     # ── TOP DECORATIVE BAR ──────────────────────────────────────
     bar_top = pdf.get_y()
     _deco_bar(pdf, pdf.l_margin, bar_top, pw)
-    pdf.set_y(bar_top + 9)          # clear the bar + thin line + gap
+    pdf.set_y(bar_top + 6)          # clear the bar + thin line + gap
     header_y = pdf.get_y()
 
     # ── LOGO ────────────────────────────────────────────────────
