@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Momentum Electrical — Dashboard</title>
+<title>Elec Connect — Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,9 +21,9 @@
     <!-- Logo -->
     <div class="px-4 py-5 border-b border-slate-800">
       <div class="flex items-center gap-3">
-        <div x-show="!user?.logo" class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #2563eb, #1d4ed8)">
-          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        <div x-show="!user?.logo" class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: linear-gradient(135deg, #f97316, #ea580c)">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
           </svg>
         </div>
         <img x-show="user?.logo" x-cloak :src="user.logo" class="w-9 h-9 rounded-xl object-cover shrink-0">
@@ -37,17 +37,17 @@
     <!-- Nav -->
     <nav class="flex-1 px-3 py-4 space-y-1">
       <button @click="section='quotes'"
-        :class="section==='quotes' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+        :class="section==='quotes' ? 'bg-orange-500 text-white shadow-lg shadow-orange-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
         Quotes
-        <span x-show="stats.draft > 0" x-text="stats.draft" class="ml-auto bg-blue-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none"></span>
+        <span x-show="stats.draft > 0" x-text="stats.draft" class="ml-auto bg-orange-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full leading-none"></span>
       </button>
 
       <button @click="section='clients'; loadClients()"
-        :class="section==='clients' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+        :class="section==='clients' ? 'bg-orange-500 text-white shadow-lg shadow-orange-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -57,7 +57,7 @@
       </button>
 
       <button @click="section='settings'"
-        :class="section==='settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+        :class="section==='settings' ? 'bg-orange-500 text-white shadow-lg shadow-orange-900/40' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all">
         <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -110,7 +110,7 @@
             New Client
           </button>
           <button @click="openNewQuoteModal()"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200">
+            class="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 transition shadow-sm shadow-orange-200">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             New Quote
           </button>
@@ -131,8 +131,8 @@
         </div>
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Sent</div>
-          <div class="text-3xl font-bold text-blue-600" x-text="stats.sent"></div>
-          <div class="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
+          <div class="text-3xl font-bold text-orange-500" x-text="stats.sent"></div>
+          <div class="w-2 h-2 rounded-full bg-orange-500 mt-2"></div>
         </div>
         <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
           <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Approved</div>
@@ -140,9 +140,9 @@
           <div class="w-2 h-2 rounded-full bg-emerald-500 mt-2"></div>
         </div>
         <div class="bg-white rounded-2xl p-5 border border-blue-100 shadow-sm" style="background: linear-gradient(135deg, #eff6ff, #fff)">
-          <div class="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">Revenue</div>
-          <div class="text-2xl font-bold text-blue-700" x-text="'$' + stats.totalValue.toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0})"></div>
-          <div class="text-xs text-blue-400 mt-1">Approved + paid</div>
+          <div class="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-2">Revenue</div>
+          <div class="text-2xl font-bold text-orange-700" x-text="'$' + stats.totalValue.toLocaleString('en-AU', {minimumFractionDigits:0, maximumFractionDigits:0})"></div>
+          <div class="text-xs text-orange-400 mt-1">Approved + paid</div>
         </div>
       </div>
 
@@ -151,9 +151,9 @@
         <div class="relative flex-1 max-w-sm">
           <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           <input x-model="quoteSearch" placeholder="Search client or job…"
-            class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
         </div>
-        <select x-model="statusFilter" class="px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        <select x-model="statusFilter" class="px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
           <option value="">All Status</option>
           <option value="draft">Draft</option>
           <option value="sent">Sent</option>
@@ -168,7 +168,7 @@
       <div class="px-8 pb-8">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div x-show="quotesLoading" class="flex items-center justify-center py-16">
-            <svg class="w-6 h-6 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            <svg class="w-6 h-6 animate-spin text-orange-500" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
           </div>
           <div x-show="!quotesLoading && filteredQuotes.length === 0" class="text-center py-16">
             <svg class="w-12 h-12 text-slate-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -190,7 +190,7 @@
             <tbody class="divide-y divide-slate-50">
               <template x-for="q in filteredQuotes" :key="q.id">
                 <tr class="hover:bg-slate-50 transition cursor-pointer" @click="openQuote(q.id)">
-                  <td class="px-5 py-4"><span class="font-mono text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg" x-text="q.quote_number"></span></td>
+                  <td class="px-5 py-4"><span class="font-mono text-xs font-semibold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg" x-text="q.quote_number"></span></td>
                   <td class="px-5 py-4">
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold" :style="`background: ${avatarColor(q.client_name)}`" x-text="q.client_name[0].toUpperCase()"></div>
@@ -224,7 +224,7 @@
           <p class="text-sm text-slate-500 mt-0.5" x-text="`${clients.length} total`"></p>
         </div>
         <button @click="showNewClientModal=true"
-          class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition shadow-sm shadow-blue-200">
+          class="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 transition shadow-sm shadow-orange-200">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           Add Client
         </button>
@@ -290,7 +290,7 @@
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Your Name</label>
                 <input x-model="settings.name" type="text"
-                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
@@ -311,19 +311,19 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Business Name</label>
-                <input x-model="settings.business_name" type="text" placeholder="Momentum Electrical"
-                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input x-model="settings.business_name" type="text" placeholder="Elec Connect"
+                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone Number</label>
                 <input x-model="settings.phone" type="tel" placeholder="0400 000 000"
-                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                  class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
               </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1.5">Business Address</label>
               <input x-model="settings.address" type="text" placeholder="12 Main Street, Suburb NSW 2000"
-                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1.5">
@@ -331,7 +331,7 @@
                 <span class="ml-1.5 text-xs font-normal text-slate-400">Required for all licensed work in NSW</span>
               </label>
               <input x-model="settings.rec_licence" type="text" placeholder="REC 12345"
-                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
             </div>
           </div>
         </div>
@@ -357,7 +357,7 @@
               <!-- Upload controls -->
               <div class="flex-1">
                 <label class="block w-full cursor-pointer">
-                  <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-blue-50 transition">
+                  <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-blue-400 hover:bg-orange-50 transition">
                     <svg class="w-6 h-6 text-slate-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                     <p class="text-sm font-medium text-slate-600">Click to upload logo</p>
                     <p class="text-xs text-slate-400 mt-0.5">PNG, JPG up to 2 MB</p>
@@ -377,7 +377,7 @@
           <p x-show="saveMessage" x-cloak class="text-sm" :class="saveError ? 'text-red-600' : 'text-emerald-600'" x-text="saveMessage"></p>
           <div class="ml-auto">
             <button @click="saveSettings()" :disabled="savingSettings"
-              class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition shadow-sm shadow-blue-200">
+              class="flex items-center gap-2 px-6 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50 transition shadow-sm shadow-orange-200">
               <svg x-show="savingSettings" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
               <svg x-show="!savingSettings" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
               <span x-text="savingSettings ? 'Saving…' : 'Save Changes'"></span>
@@ -407,7 +407,7 @@
       <div x-show="modalError" x-cloak class="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl" x-text="modalError"></div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1.5">Client <span class="text-red-500">*</span></label>
-        <select x-model="newQuote.client_id" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        <select x-model="newQuote.client_id" required class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
           <option value="">Select client…</option>
           <template x-for="c in clients" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
         </select>
@@ -416,22 +416,22 @@
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1.5">Job Title <span class="text-red-500">*</span></label>
         <input x-model="newQuote.title" type="text" required placeholder="e.g. Kitchen Renovation — Power & Lighting"
-          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1.5">Site Address</label>
         <input x-model="newQuote.site_address" type="text" placeholder="12 Main St, Suburb NSW 2000"
-          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
       </div>
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1.5">Notes</label>
         <textarea x-model="newQuote.notes" rows="2" placeholder="Any additional notes…"
-          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"></textarea>
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition resize-none"></textarea>
       </div>
       <div class="flex gap-3 pt-2">
         <button type="button" @click="showNewQuoteModal=false" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
         <button type="submit" :disabled="saving || !newQuote.client_id || !newQuote.title"
-          class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
+          class="flex-1 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50 transition flex items-center justify-center gap-2">
           <svg x-show="saving" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
           <span x-text="saving ? 'Creating…' : 'Create Quote'"></span>
         </button>
@@ -450,16 +450,16 @@
     </div>
     <form @submit.prevent="createClient()" class="p-6 space-y-4">
       <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Name <span class="text-red-500">*</span></label>
-        <input x-model="newClient.name" required placeholder="John Smith" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+        <input x-model="newClient.name" required placeholder="John Smith" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"></div>
       <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Email <span class="text-red-500">*</span></label>
-        <input x-model="newClient.email" type="email" required placeholder="john@example.com" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+        <input x-model="newClient.email" type="email" required placeholder="john@example.com" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"></div>
       <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
-        <input x-model="newClient.phone" type="tel" placeholder="0400 000 000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+        <input x-model="newClient.phone" type="tel" placeholder="0400 000 000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"></div>
       <div><label class="block text-sm font-medium text-slate-700 mb-1.5">Address</label>
-        <input x-model="newClient.address" placeholder="12 Main St, Suburb NSW 2000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></div>
+        <input x-model="newClient.address" placeholder="12 Main St, Suburb NSW 2000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"></div>
       <div class="flex gap-3 pt-2">
         <button type="button" @click="showNewClientModal=false" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
-        <button type="submit" :disabled="saving" class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition"><span x-text="saving ? 'Adding…' : 'Add Client'"></span></button>
+        <button type="submit" :disabled="saving" class="flex-1 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50 transition"><span x-text="saving ? 'Adding…' : 'Add Client'"></span></button>
       </div>
     </form>
   </div>
@@ -685,7 +685,7 @@ function dashboard() {
     openQuote(id) { window.location.href = `/quote?id=${id}`; },
 
     statusClass(status) {
-      const m = { draft:'bg-slate-100 text-slate-600', sent:'bg-blue-100 text-blue-700', approved:'bg-emerald-100 text-emerald-700', declined:'bg-red-100 text-red-700', invoiced:'bg-purple-100 text-purple-700', paid:'bg-emerald-100 text-emerald-800' };
+      const m = { draft:'bg-slate-100 text-slate-600', sent:'bg-blue-100 text-orange-700', approved:'bg-emerald-100 text-emerald-700', declined:'bg-red-100 text-red-700', invoiced:'bg-purple-100 text-purple-700', paid:'bg-emerald-100 text-emerald-800' };
       return m[status] || 'bg-slate-100 text-slate-600';
     },
 

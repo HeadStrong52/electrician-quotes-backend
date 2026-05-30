@@ -3,44 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Momentum Electrical</title>
+<title>Elec Connect</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>* { font-family: 'Inter', sans-serif; }</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  @keyframes pulse-glow { 0%,100%{opacity:.06} 50%{opacity:.1} }
+  .bulb-bg { animation: pulse-glow 4s ease-in-out infinite; }
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a5f 100%)">
+<body class="min-h-screen flex items-center justify-center overflow-hidden" style="background: radial-gradient(ellipse at 40% 60%, #2d1200 0%, #111111 60%)">
 
-<div class="text-center">
-  <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6 shadow-xl" style="background: linear-gradient(135deg, #2563eb, #1d4ed8)">
-    <svg class="w-9 h-9 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+<!-- Decorative background bulbs -->
+<svg class="bulb-bg absolute -top-16 -right-16 w-72 h-72 text-white opacity-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+</svg>
+<svg class="bulb-bg absolute -bottom-8 -left-8 w-48 h-48 text-white opacity-5 pointer-events-none" style="animation-delay:2s" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+</svg>
+
+<div class="text-center relative z-10">
+  <!-- Lightbulb icon -->
+  <div class="flex justify-center mb-8">
+    <svg class="w-28 h-28" style="color:#f97316" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
     </svg>
   </div>
-  <h1 class="text-2xl font-bold text-white tracking-tight mb-2">Momentum Electrical</h1>
+
+  <!-- App name -->
+  <h1 class="text-5xl font-bold tracking-tight mb-3">
+    <span style="color:#f97316">Elec</span><span class="text-white"> Connect</span>
+  </h1>
+
+  <!-- Tagline -->
+  <div class="flex items-center justify-center gap-3 mb-10">
+    <div class="h-px w-8" style="background:#f97316"></div>
+    <span class="text-xs font-semibold tracking-widest uppercase" style="color:#f97316">Electrical Quoting App</span>
+    <div class="h-px w-8" style="background:#f97316"></div>
+  </div>
+
+  <!-- Status message -->
   <p class="text-slate-400 text-sm" id="msg">Loading…</p>
 </div>
 
 <script>
 (async () => {
   const msg = document.getElementById('msg');
-
-  // Already have a valid token — go straight in
   if (localStorage.getItem('me_token')) {
     window.location.replace('/dashboard');
     return;
   }
-
-  // Obtain a token automatically (no credentials required)
   try {
-    msg.textContent = 'Signing in…';
+    msg.textContent = 'Connecting…';
     const res = await fetch('/auth/auto-login', { method: 'POST' });
     if (!res.ok) throw new Error('Auto-login failed');
     const { access_token } = await res.json();
     localStorage.setItem('me_token', access_token);
     window.location.replace('/dashboard');
   } catch (e) {
-    msg.textContent = 'Could not connect to the server. Please refresh the page.';
-    msg.classList.add('text-red-400');
+    msg.textContent = 'Could not connect to server. Please refresh the page.';
+    msg.style.color = '#f87171';
   }
 })();
 </script>

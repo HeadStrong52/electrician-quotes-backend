@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quote — Momentum Electrical</title>
+<title>Quote — Elec Connect</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,20 +19,20 @@
   <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <!-- Logo + Back -->
-      <a href="/dashboard" class="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition group">
-        <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #2563eb, #1d4ed8)">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+      <a href="/dashboard" class="flex items-center gap-2 text-slate-500 hover:text-orange-500 transition group">
+        <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #f97316, #ea580c)">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
           </svg>
         </div>
         <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
         </svg>
-        <span class="text-sm font-medium text-slate-500 group-hover:text-blue-600">Quotes</span>
+        <span class="text-sm font-medium text-slate-500 group-hover:text-orange-500">Quotes</span>
       </a>
       <span class="text-slate-300">/</span>
       <div class="flex items-center gap-2">
-        <span class="font-mono text-sm font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg" x-text="quote?.quote_number || '…'"></span>
+        <span class="font-mono text-sm font-semibold text-orange-500 bg-orange-50 px-2.5 py-1 rounded-lg" x-text="quote?.quote_number || '…'"></span>
         <span :class="statusClass(quote?.status)" class="px-2.5 py-1 rounded-full text-xs font-semibold capitalize" x-text="quote?.status || ''"></span>
       </div>
     </div>
@@ -48,7 +48,7 @@
       </a>
       <button x-show="quote?.status === 'draft'" @click="sendQuote()"
         :disabled="sending || !quote?.line_items?.length"
-        class="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition shadow-sm shadow-blue-200">
+        class="flex items-center gap-1.5 px-3.5 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50 transition shadow-sm shadow-orange-200">
         <svg x-show="!sending" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
@@ -64,7 +64,7 @@
 
 <!-- Loading -->
 <div x-show="loading" class="flex items-center justify-center py-24">
-  <svg class="w-7 h-7 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+  <svg class="w-7 h-7 animate-spin text-orange-500" fill="none" viewBox="0 0 24 24">
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
   </svg>
@@ -170,7 +170,7 @@
               </td>
               <td class="px-6 py-3.5" x-show="quote?.status === 'draft'">
                 <div class="flex items-center gap-1">
-                  <button @click="openEditItem(item)" class="p-1 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition">
+                  <button @click="openEditItem(item)" class="p-1 text-slate-300 hover:text-blue-500 hover:bg-orange-50 rounded-lg transition">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
@@ -217,11 +217,11 @@
         <div class="md:col-span-4">
           <label class="block text-xs font-medium text-slate-500 mb-1.5">Description</label>
           <input x-model="newItem.description" placeholder="e.g. Install GPO (double)"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
         </div>
         <div class="md:col-span-2">
           <label class="block text-xs font-medium text-slate-500 mb-1.5">Type</label>
-          <select x-model="newItem.type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <select x-model="newItem.type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
             <option value="labour">Labour</option>
             <option value="material">Material</option>
             <option value="other">Other</option>
@@ -230,11 +230,11 @@
         <div class="md:col-span-2">
           <label class="block text-xs font-medium text-slate-500 mb-1.5">Qty</label>
           <input x-model.number="newItem.quantity" type="number" min="0.01" step="0.01"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
         </div>
         <div class="md:col-span-2">
           <label class="block text-xs font-medium text-slate-500 mb-1.5">Unit</label>
-          <select x-model="newItem.unit" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          <select x-model="newItem.unit" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
             <option value="ea">ea</option>
             <option value="hrs">hrs</option>
             <option value="m">m</option>
@@ -246,7 +246,7 @@
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-slate-400 text-sm">$</span>
             <input x-model.number="newItem.unit_price" type="number" min="0" step="0.01"
-              class="w-full pl-6 pr-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+              class="w-full pl-6 pr-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
           </div>
         </div>
       </div>
@@ -255,7 +255,7 @@
           Total: <strong x-text="`$${(newItem.quantity * newItem.unit_price).toFixed(2)}`"></strong>
         </div>
         <button @click="addItem()" :disabled="!newItem.description || addingItem"
-          class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition ml-auto">
+          class="flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50 transition ml-auto">
           <svg x-show="!addingItem" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
           </svg>
@@ -270,13 +270,13 @@
   </div>
 
   <!-- Sent notification -->
-  <div x-show="quote?.status === 'sent'" class="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-start gap-3">
-    <svg class="w-5 h-5 text-blue-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <div x-show="quote?.status === 'sent'" class="bg-orange-50 border border-blue-200 rounded-2xl p-5 flex items-start gap-3">
+    <svg class="w-5 h-5 text-orange-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
     </svg>
     <div>
       <p class="font-semibold text-blue-800 text-sm">Quote sent to client</p>
-      <p class="text-blue-600 text-sm mt-0.5" x-text="quote?.sent_at ? `Sent ${formatDate(quote.sent_at)}` : ''"></p>
+      <p class="text-orange-500 text-sm mt-0.5" x-text="quote?.sent_at ? `Sent ${formatDate(quote.sent_at)}` : ''"></p>
     </div>
   </div>
 
@@ -307,18 +307,18 @@
       <div>
         <label class="block text-sm font-medium text-slateate-700 mb-1.5">Description</label>
         <input x-model="editForm.description" type="text"
-          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1.5">Quantity</label>
           <input x-model="editForm.quantity" type="number" step="0.01" min="0"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1.5">Unit Price ($)</label>
           <input x-model="editForm.unit_price" type="number" step="0.01" min="0"
-            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
         </div>
       </div>
       <div>
@@ -326,7 +326,7 @@
         <div class="flex gap-2">
           <template x-for="t in ['labour','material','other']" :key="t">
             <button @click="editForm.type = t"
-              :class="editForm.type === t ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'"
+              :class="editForm.type === t ? 'bg-orange-500 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'"
               class="flex-1 py-2 border rounded-xl text-sm font-medium capitalize transition"
               x-text="t"></button>
           </template>
@@ -339,7 +339,7 @@
         <button @click="editItem = null" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
         <button @click="saveEditItem()"
           :disabled="savingEdit || !editForm.description.trim()"
-          class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
+          class="flex-1 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50 transition flex items-center justify-center gap-2">
           <svg x-show="savingEdit" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
           <span x-text="savingEdit ? 'Saving…' : 'Save Changes'"></span>
         </button>
