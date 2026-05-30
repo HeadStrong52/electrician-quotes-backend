@@ -169,11 +169,18 @@
                 <span class="text-sm font-semibold text-slate-900" x-text="`$${item.total.toFixed(2)}`"></span>
               </td>
               <td class="px-6 py-3.5" x-show="quote?.status === 'draft'">
-                <button @click="removeItem(item.id)" class="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
+                <div class="flex items-center gap-1">
+                  <button @click="openEditItem(item)" class="p-1 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button @click="removeItem(item.id)" class="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
           </template>
@@ -286,6 +293,61 @@
 
 </div>
 
+<!-- Edit Line Item Modal -->
+<div x-show="editItem" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="editItem = null"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+      <h2 class="text-lg font-semibold text-slate-900">Edit Line Item</h2>
+      <button @click="editItem = null" class="text-slate-400 hover:text-slate-700">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-4" x-show="editItem">
+      <div>
+        <label class="block text-sm font-medium text-slateate-700 mb-1.5">Description</label>
+        <input x-model="editForm.description" type="text"
+          class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Quantity</label>
+          <input x-model="editForm.quantity" type="number" step="0.01" min="0"
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1.5">Unit Price ($)</label>
+          <input x-model="editForm.unit_price" type="number" step="0.01" min="0"
+            class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">Type</label>
+        <div class="flex gap-2">
+          <template x-for="t in ['labour','material','other']" :key="t">
+            <button @click="editForm.type = t"
+              :class="editForm.type === t ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-300 hover:border-blue-400'"
+              class="flex-1 py-2 border rounded-xl text-sm font-medium capitalize transition"
+              x-text="t"></button>
+          </template>
+        </div>
+      </div>
+      <div class="text-right text-sm text-slate-500 pt-1">
+        Total: <span class="font-semibold text-slate-900" x-text="`$${(parseFloat(editForm.quantity||0) * parseFloat(editForm.unit_price||0)).toFixed(2)}`"></span>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button @click="editItem = null" class="flex-1 py-2.5 border border-slate-300 text-slate-700 rounded-xl text-sm font-medium hover:bg-slate-50 transition">Cancel</button>
+        <button @click="saveEditItem()"
+          :disabled="savingEdit || !editForm.description.trim()"
+          class="flex-1 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
+          <svg x-show="savingEdit" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+          <span x-text="savingEdit ? 'Saving…' : 'Save Changes'"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 async function ensureToken() {
   if (localStorage.getItem('me_token')) return;
@@ -326,6 +388,9 @@ function quotePage() {
     loading: true,
     sending: false,
     addingItem: false,
+    editItem: null,
+    editForm: { description: '', quantity: 1, unit_price: 0, unit: 'ea', type: 'labour' },
+    savingEdit: false,
     toast: '',
     toastError: false,
     newItem: { description: '', type: 'labour', quantity: 1, unit: 'ea', unit_price: 0 },
@@ -387,6 +452,39 @@ function quotePage() {
       } catch (e) {
         this.showToast(e.message, true);
       } finally { this.sending = false; }
+    },
+
+    openEditItem(item) {
+      this.editItem = item;
+      this.editForm = {
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        unit: item.unit,
+        type: item.type
+      };
+    },
+
+    async saveEditItem() {
+      if (!this.editItem) return;
+      this.savingEdit = true;
+      try {
+        const updated = await API.patch(`/quotes/${quoteId}/items/${this.editItem.id}`, {
+          description: this.editForm.description,
+          quantity: parseFloat(this.editForm.quantity),
+          unit_price: parseFloat(this.editForm.unit_price),
+          unit: this.editForm.unit,
+          type: this.editForm.type
+        });
+        // Update item in place and recalculate totals
+        const idx = this.quote.line_items.findIndex(i => i.id === this.editItem.id);
+        if (idx !== -1) this.quote.line_items[idx] = updated;
+        await this.loadQuote(); // reload to get updated totals
+        this.editItem = null;
+        this.showToast('Item updated');
+      } catch (e) {
+        this.showToast(e.message, true);
+      } finally { this.savingEdit = false; }
     },
 
     showToast(msg, isError = false) {

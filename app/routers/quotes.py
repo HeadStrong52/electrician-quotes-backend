@@ -7,7 +7,7 @@ from app.models.quote import Quote, QuoteStatus
 from app.models.line_item import LineItem
 from app.models.client import Client
 from app.models.user import User
-from app.schemas.quote import QuoteCreate, QuoteUpdate, QuoteOut, QuoteSummary, LineItemCreate, LineItemOut
+from app.schemas.quote import QuoteCreate, QuoteUpdate, QuoteOut, QuoteSummary, LineItemCreate, LineItemUpdate, LineItemOut
 from app.auth import get_current_user, decode_user_from_token
 from app.pdf import generate_quote_pdf
 from app.email_sender import send_quote_email
@@ -186,6 +186,29 @@ def add_line_item(
     )
     db.add(item)
     quote.line_items.append(item)
+    _recalculate(quote)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@router.patch("/{quote_id}/items/{item_id}", response_model=LineItemOut)
+def update_line_item(
+    quote_id: int,
+    item_id: int,
+    body: LineItemUpdate,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    item = db.query(LineItem).filter(LineItem.id == item_id, LineItem.quote_id == quote_id).first()
+    if not item:
+        raise HTTPException(404, "Line item not found")
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(item, field, value)
+    item.total = round(float(item.quantity) * float(item.unit_price), 2)
+    quote = db.query(Quote).options(joinedload(Quote.line_items)).filter(Quote.id == quote_id).first()
+    db.flush()
+    db.refresh(quote)
     _recalculate(quote)
     db.commit()
     db.refresh(item)
