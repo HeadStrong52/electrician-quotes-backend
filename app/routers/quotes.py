@@ -218,7 +218,7 @@ def download_quote_pdf(
 ):
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    decode_user_from_token(token, db)  # validates token
+    user = decode_user_from_token(token, db)
 
     quote = (
         db.query(Quote)
@@ -229,7 +229,7 @@ def download_quote_pdf(
     if not quote:
         raise HTTPException(404, "Quote not found")
 
-    pdf_bytes = generate_quote_pdf(quote, settings.public_url)
+    pdf_bytes = generate_quote_pdf(quote, settings.public_url, user=user)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -240,8 +240,8 @@ def download_quote_pdf(
 @router.post("/{quote_id}/send", response_model=QuoteOut)
 def send_quote(
     quote_id: int,
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
 ):
     quote = (
         db.query(Quote)
@@ -257,7 +257,7 @@ def send_quote(
     approve_url = f"{settings.public_url}/quotes/public/{quote.quote_number}/approve"
     decline_url = f"{settings.public_url}/quotes/public/{quote.quote_number}/decline"
 
-    pdf_bytes = generate_quote_pdf(quote, settings.public_url)
+    pdf_bytes = generate_quote_pdf(quote, settings.public_url, user=current_user)
 
     if quote.client.email:
         send_quote_email(

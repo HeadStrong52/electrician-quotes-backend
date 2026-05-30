@@ -1,3 +1,6 @@
+import base64
+import io
+import re
 from datetime import datetime
 from fpdf import FPDF
 from app.config import settings
@@ -65,6 +68,21 @@ def _set_color(pdf: FPDF, rgb: tuple, fill=False, draw=False, text=False):
         pdf.set_text_color(r, g, b)
 
 
+def _logo_bytes(data_uri: str) -> tuple[bytes, str] | None:
+    """Extract raw bytes and image type from a base64 data URI."""
+    try:
+        m = re.match(r"data:image/(\w+);base64,(.+)", data_uri, re.DOTALL)
+        if not m:
+            return None
+        img_type = m.group(1).upper()
+        if img_type == "JPG":
+            img_type = "JPEG"
+        raw = base64.b64decode(m.group(2))
+        return raw, img_type
+    except Exception:
+        return None
+
+
 class QuotePDF(FPDF):
     def __init__(self):
         super().__init__(unit="mm", format="A4")
@@ -87,21 +105,28 @@ class QuotePDF(FPDF):
         self.cell(0, 5, f"Page {self.page_no()}", align="R")
 
 
-def generate_quote_pdf(quote: Quote, base_url: str) -> bytes:
+def generate_quote_pdf(quote: Quote, base_url: str, user=None) -> bytes:
     pdf = QuotePDF()
     pdf.add_page()
 
     approve_url = f"{base_url}/quotes/public/{quote.quote_number}/approve"
     decline_url = f"{base_url}/quotes/public/{quote.quote_number}/decline"
 
-    biz = settings
+    # Use user profile data if available, fall back to env settings
+    biz_name    = (user.business_name if user and user.business_name else None) or settings.business_name
+    biz_phone   = (user.phone         if user and user.phone         else None) or settings.business_phone
+    biz_email   = (user.email         if user                        else None) or settings.business_email
+    biz_address = (user.address       if user and user.address       else None) or settings.business_address
+    biz_rec     = (user.rec_licence   if user and user.rec_licence   else None)
+    biz_logo    = (user.logo          if user and user.logo          else None)
+    biz_abn     = settings.business_abn  # still from env for now
+
     pdf.set_footer_text(
-        "All prices in Australian Dollars. "
-        f"Valid 30 days from issue. | {biz.business_name}"
+        f"All prices in Australian Dollars. Valid 30 days from issue. | {biz_name}"
     )
 
     # ── HEADER ───────────────────────────────────────────────────
-    page_w = pdf.w - pdf.l_margin - pdf.r_margin  # usable width
+    page_w = pdf.w - pdf.l_margin - pdf.r_margin
 
     # Amber top bar
     _set_color(pdf, AMBER, fill=True, draw=True)
@@ -110,11 +135,28 @@ def generate_quote_pdf(quote: Quote, base_url: str) -> bytes:
 
     header_y = pdf.get_y()
 
-    # Left — business name
-    pdf.set_x(pdf.l_margin)
+    # Logo (if set) — place it left, max 30mm wide, 18mm tall
+    logo_w = 0
+    if biz_logo:
+        decoded = _logo_bytes(biz_logo)
+        if decoded:
+            raw, img_type = decoded
+            buf = io.BytesIO(raw)
+            try:
+                max_w, max_h = 35, 18
+                pdf.image(buf, x=pdf.l_margin, y=header_y, w=max_w, h=max_h,
+                          type=img_type, keep_aspect_ratio=True)
+                logo_w = max_w + 3
+            except Exception:
+                logo_w = 0
+
+    # Business name — to the right of logo
+    name_x = pdf.l_margin + logo_w
+    name_w = page_w * 0.60 - logo_w
+    pdf.set_xy(name_x, header_y)
     _set_color(pdf, DARK, text=True)
     pdf.set_font("Helvetica", "B", 18)
-    pdf.cell(page_w * 0.60, 9, biz.business_name, ln=False)
+    pdf.cell(name_w, 9, _safe(biz_name), ln=False)
 
     # Right — "QUOTE" label + number
     right_x = pdf.l_margin + page_w * 0.60
@@ -147,15 +189,17 @@ def generate_quote_pdf(quote: Quote, base_url: str) -> bytes:
     _set_color(pdf, MID, text=True)
     pdf.set_font("Helvetica", size=8)
     details = []
-    if biz.business_abn:
-        details.append(f"ABN {biz.business_abn}")
-    if biz.business_address:
-        details.append(biz.business_address)
+    if biz_abn:
+        details.append(f"ABN {biz_abn}")
+    if biz_rec:
+        details.append(f"REC Licence: {_safe(biz_rec)}")
+    if biz_address:
+        details.append(_safe(biz_address))
     contact = []
-    if biz.business_phone:
-        contact.append(biz.business_phone)
-    if biz.business_email:
-        contact.append(biz.business_email)
+    if biz_phone:
+        contact.append(_safe(biz_phone))
+    if biz_email:
+        contact.append(_safe(biz_email))
     if contact:
         details.append("  |  ".join(contact))
     for line in details:
@@ -214,11 +258,11 @@ def generate_quote_pdf(quote: Quote, base_url: str) -> bytes:
     # ── TITLE ────────────────────────────────────────────────────
     _set_color(pdf, DARK, text=True)
     pdf.set_font("Helvetica", "B", 13)
-    pdf.cell(0, 7, quote.title, ln=True)
+    pdf.cell(0, 7, _safe(quote.title), ln=True)
     if quote.description:
         _set_color(pdf, MID, text=True)
         pdf.set_font("Helvetica", size=9)
-        pdf.multi_cell(0, 5, quote.description)
+        pdf.multi_cell(0, 5, _safe(quote.description))
     pdf.ln(4)
 
     # ── LINE ITEMS TABLE ─────────────────────────────────────────
@@ -255,22 +299,20 @@ def generate_quote_pdf(quote: Quote, base_url: str) -> bytes:
             bg = PALE if idx % 2 == 0 else WHITE
             _set_color(pdf, bg, fill=True, draw=True)
             y = pdf.get_y()
-            # Measure description height
-            pdf.set_font("Helvetica", size=9)
             row_h = 5.5
             x = pdf.l_margin
             pdf.rect(x, y, page_w, row_h, style="F")
             _set_color(pdf, DARK, text=True)
+            pdf.set_font("Helvetica", size=9)
             pdf.set_xy(x + 2, y + 0.5)
-            pdf.cell(col_desc - 2, row_h - 1, item.description, ln=False)
+            pdf.cell(col_desc - 2, row_h - 1, _safe(item.description), ln=False)
             _set_color(pdf, DARK, text=True)
-            pdf.cell(col_qty,   row_h - 1, _qty(item.quantity),        align="R")
+            pdf.cell(col_qty,   row_h - 1, _qty(item.quantity),     align="R")
             _set_color(pdf, MID, text=True)
-            pdf.cell(col_unit,  row_h - 1, item.unit,                  align="C")
+            pdf.cell(col_unit,  row_h - 1, item.unit,               align="C")
             _set_color(pdf, DARK, text=True)
-            pdf.cell(col_price, row_h - 1, _money(item.unit_price),    align="R")
-            pdf.cell(col_total, row_h - 1, _money(item.total),         align="R", ln=True)
-            # Bottom border
+            pdf.cell(col_price, row_h - 1, _money(item.unit_price), align="R")
+            pdf.cell(col_total, row_h - 1, _money(item.total),      align="R", ln=True)
             _set_color(pdf, LIGHT, draw=True)
             pdf.set_line_width(0.2)
             pdf.line(x, pdf.get_y(), x + page_w, pdf.get_y())
@@ -336,7 +378,7 @@ def generate_quote_pdf(quote: Quote, base_url: str) -> bytes:
         _set_color(pdf, MID, text=True)
         pdf.set_font("Helvetica", size=9)
         pdf.set_xy(note_x + 4, note_y + 2)
-        pdf.multi_cell(page_w - 6, 5, quote.notes)
+        pdf.multi_cell(page_w - 6, 5, _safe(quote.notes))
         pdf.ln(6)
 
     # ── CLIENT CTA (sent quotes only) ────────────────────────────
